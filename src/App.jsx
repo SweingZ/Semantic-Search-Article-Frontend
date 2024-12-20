@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ArrowLeft } from 'lucide-react';
+import axios from "axios";
 
 const ArticleApp = () => {
   const [articles, setArticles] = useState([]);
@@ -13,42 +14,41 @@ const ArticleApp = () => {
 
   const fetchRandomArticles = async () => {
     try {
-      const response = await fetch('http://localhost:8000/random-articles');
-      const data = await response.json();
-      setArticles(data);
+      const response = await axios.get('http://localhost:8000/random-articles');
+      setArticles(response.data);
     } catch (error) {
-      console.error('Error fetching random articles:', error);
+      console.error('Error fetching random articles:', error.message);
     }
   };
-
+  
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
       fetchRandomArticles();
       return;
     }
-
+  
     try {
-      const response = await fetch('http://localhost:8000/search', {
-        method: 'POST',
+      const response = await axios.post('http://localhost:8000/search', {
+        query: searchQuery,
+      }, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: searchQuery }),
       });
-      const data = await response.json();
-      setArticles(data);
+      setArticles(response.data);
     } catch (error) {
-      console.error('Error searching articles:', error);
+      console.error('Error searching articles:', error.message);
     }
   };
-
+  
   const fetchRecommendations = async (title) => {
     try {
-      const response = await fetch(`http://localhost:8000/recommend-articles?title=${encodeURIComponent(title)}`);
-      const data = await response.json();
-      setRecommendations(data);
+      const response = await axios.get(`http://localhost:8000/recommend-articles`, {
+        params: { title },
+      });
+      setRecommendations(response.data);
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      console.error('Error fetching recommendations:', error.message);
     }
   };
 
